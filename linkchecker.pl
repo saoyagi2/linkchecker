@@ -25,14 +25,18 @@ my $parser = HTML::Parser->new(
       }
     }, "tagname, attr"]),;
 
-foreach my $file (list_files($basedir, '')) {
+my @files = list_files($basedir, '');
+foreach my $file (@files) {
   @links = ();
-  $parser->parse_file("$basedir/$file->[0]/$file->[1]");
+  $parser->parse_file("$basedir/$file");
   foreach my $link (@links) {
     next if $link =~ /^(http|https|mailto):/;
-    next if -f "$basedir/$file->[0]/$link";
-    next if $link =~ /\/$/ && -f "$basedir/$file->[0]/${link}index.html";
-    print (($basedir ne '.' ? $basedir : '') . ($file->[0] ne '' ? $file->[0] : '') . "$file->[1]: $link\n");
+    my $target = get_directory($file) . $link;
+    $target .= $target =~ /\/$/ ? 'index.html' : '';
+    $target = normalize_path($target);
+    next if grep {$_ eq $target} @files;
+    next if $link =~ /\/$/ && -f "$basedir/$file/${link}index.html";
+    print (($basedir ne '.' ? $basedir : '') . "$file: $link\n");
   }
 }
 
@@ -44,7 +48,7 @@ sub list_files {
   while(my $file = readdir $dh) {
     next if $file =~ /^\./;
     if(-f "$basedir/$dir/$file") {
-      push @files, [$dir, $file];
+      push @files, ($dir ne '' ? "$dir/$file" : $file);
     }
     if(-d "$basedir/$dir/$file") {
       push @files, list_files($basedir, ($dir ne '' ? "$dir/$file" : $file));
@@ -52,6 +56,28 @@ sub list_files {
   }
 
   return @files;
+}
+
+sub normalize_path {
+  my $path = shift;
+  my @pieces = ();
+  foreach my $piece (split('/', $path)) {
+    next if($piece eq '' || $piece eq '.');
+    if($piece eq '..') {
+      pop(@pieces);
+      next
+    }
+    push(@pieces, $piece);
+  }
+  return ($path =~ /^\// ? '/' : '') . join('/', @pieces);
+}
+
+sub get_directory {
+  my $path = shift;
+  if($path !~ /\/$/) {
+    $path =~ s/[^\/]+$//;
+  }
+  return $path;
 }
 
 sub usage {
