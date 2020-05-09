@@ -10,31 +10,53 @@ if(@ARGV < 1) {
   usage();
 }
 
-my @links;
 my $basedir = $ARGV[0];
-my $parser = HTML::Parser->new(
-  api_version => 3,
-  start_h     => [
-    sub {
-      my ($tagname, $attr) = @_;
-      if($tagname eq 'a' && defined $attr->{'href'}) {
-        push @links, $attr->{'href'};
-      }
-      if($tagname eq 'img' && defined $attr->{'src'}) {
-        push @links, $attr->{'src'};
-      }
-    }, "tagname, attr"]),;
-
+my @links;
+my @ids;
 my @files = list_files($basedir, '');
+
+foreach my $file (@files) {
+  my $parser = HTML::Parser->new(
+    api_version => 3,
+    start_h     => [
+      sub {
+        my ($attr) = @_;
+        if(defined $attr->{'id'}) {
+          push @ids, "$file#$attr->{'id'}";
+        }
+      }, "attr"]),;
+  $parser->parse_file("$basedir/$file");
+}
+
 foreach my $file (@files) {
   @links = ();
+  my $parser = HTML::Parser->new(
+    api_version => 3,
+    start_h     => [
+      sub {
+        my ($tagname, $attr) = @_;
+        if($tagname eq 'a' && defined $attr->{'href'}) {
+          push @links, $attr->{'href'};
+        }
+        if($tagname eq 'img' && defined $attr->{'src'}) {
+          push @links, $attr->{'src'};
+        }
+      }, "tagname, attr"]),;
   $parser->parse_file("$basedir/$file");
+
   foreach my $link (@links) {
     next if $link =~ /^(http|https|mailto):/;
-    my $target = get_directory($file) . $link;
-    $target .= $target =~ /\/$/ ? 'index.html' : '';
-    $target = normalize_path($target);
+    my $target;
+    if($link =~ /^#/) {
+      $target = $file . $link;
+    }
+    else {
+      $target = get_directory($file) . $link;
+      $target .= $target =~ /\/$/ ? 'index.html' : '';
+      $target = normalize_path($target);
+    }
     next if grep {$_ eq $target} @files;
+    next if grep {$_ eq $target} @ids;
     next if $link =~ /\/$/ && -f "$basedir/$file/${link}index.html";
     print (($basedir ne '.' ? $basedir : '') . "$file: $link\n");
   }
