@@ -26,7 +26,7 @@ foreach my $file (list_files($basedir, '')) {
   @links = ();
   $parser->parse_file("$basedir/$file->[0]/$file->[1]");
   foreach my $link (@links) {
-    next if $link =~ /^https?:/;
+    next if $link =~ /^(http|https|mailto):/;
     next if -f "$basedir/$file->[0]/$link";
     next if $link =~ /\/$/ && -f "$basedir/$file->[0]/${link}index.html";
     print (($basedir ne '.' ? $basedir : '') . ($file->[0] ne '' ? $file->[0] : '') . "$file->[1]: $link\n");
