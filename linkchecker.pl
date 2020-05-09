@@ -20,6 +20,9 @@ my $parser = HTML::Parser->new(
       if($tagname eq 'a' && defined $attr->{'href'}) {
         push @links, $attr->{'href'};
       }
+      if($tagname eq 'img' && defined $attr->{'src'}) {
+        push @links, $attr->{'src'};
+      }
     }, "tagname, attr"]),;
 
 foreach my $file (list_files($basedir, '')) {
