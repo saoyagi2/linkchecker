@@ -6,30 +6,27 @@ use warnings;
 use HTML::Parser;
 use Data::Dumper;
 
-if(@ARGV < 1) {
-  usage();
+{
+  if(@ARGV < 1) {
+    usage();
+  }
+
+  my $basedir = $ARGV[0];
+  my $files_ref = get_files($basedir, '');
+  my $ids_ref = get_ids($files_ref, $basedir);
+  foreach my $file (@$files_ref) {
+    linkcheck($file, $basedir, $files_ref, $ids_ref);
+  }
 }
 
-my $basedir = $ARGV[0];
-my @links;
-my @ids;
-my @files = list_files($basedir, '');
-
-foreach my $file (@files) {
-  my $parser = HTML::Parser->new(
-    api_version => 3,
-    start_h     => [
-      sub {
-        my ($attr) = @_;
-        if(defined $attr->{'id'}) {
-          push @ids, "$file#$attr->{'id'}";
-        }
-      }, "attr"]),;
-  $parser->parse_file("$basedir/$file");
-}
-
-foreach my $file (@files) {
-  @links = ();
+# リンクチェック
+# @param $file 対象ファイル
+# @param $basedir 基準ディレクトリ
+# @param $files_ref ファイル一覧のリファレンス
+# @param $ids_ref id一覧のリファレンス
+sub linkcheck {
+  my($file, $basedir, $files_ref, $ids_ref) = @_;
+  my @links = ();
   my $parser = HTML::Parser->new(
     api_version => 3,
     start_h     => [
@@ -61,14 +58,18 @@ foreach my $file (@files) {
       $target .= $target =~ /\/$/ ? 'index.html' : '';
       $target = normalize_path($target);
     }
-    next if grep {$_ eq $target} @files;
-    next if grep {$_ eq $target} @ids;
+    next if grep {$_ eq $target} @$files_ref;
+    next if grep {$_ eq $target} @$ids_ref;
     next if $link =~ /\/$/ && -f "$basedir/$file/${link}index.html";
     print (($basedir ne '.' ? $basedir : '') . "$file: $link\n");
   }
 }
 
-sub list_files {
+# ファイル一覧取得
+# @param $basedir 基準ディレクトリ
+# @param $dir 探索中サブディレクトリ
+# @return ファイル一覧のリファレンス
+sub get_files {
   my ($basedir, $dir) = @_;
   my @files = ();
 
@@ -79,13 +80,38 @@ sub list_files {
       push @files, ($dir ne '' ? "$dir/$file" : $file);
     }
     if(-d "$basedir/$dir/$file") {
-      push @files, list_files($basedir, ($dir ne '' ? "$dir/$file" : $file));
+      push @files, @{get_files($basedir, ($dir ne '' ? "$dir/$file" : $file))};
     }
   }
 
-  return @files;
+  return \@files;
 }
 
+# id一覧を取得
+# @param $files_ref ファイル一覧のリファレンス
+# @param $basedir 基準ディレクトリ
+# @return id一覧のリファレンス
+sub get_ids {
+  my($files_ref, $basedir) = @_;
+  my @ids;
+  foreach my $file (@$files_ref) {
+    my $parser = HTML::Parser->new(
+      api_version => 3,
+      start_h     => [
+        sub {
+          my ($attr) = @_;
+          if(defined $attr->{'id'}) {
+            push @ids, "$file#$attr->{'id'}";
+          }
+        }, "attr"]),;
+    $parser->parse_file("$basedir/$file");
+  }
+  return \@ids;
+}
+
+# パス文字列の正規化(..を整理する)
+# @param $path パス文字列
+# @return 正規化パス文字列
 sub normalize_path {
   my $path = shift;
   my @pieces = ();
@@ -100,6 +126,9 @@ sub normalize_path {
   return ($path =~ /^\// ? '/' : '') . join('/', @pieces);
 }
 
+# パス文字列からディレクトリ部分を抽出
+# @param $path パス文字列
+# @return ディレクトリ文字列
 sub get_directory {
   my $path = shift;
   if($path !~ /\/$/) {
