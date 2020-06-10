@@ -35,38 +35,38 @@ sub linkcheck {
     api_version => 3,
     start_h     => [
       sub {
-        my ($tagname, $attr) = @_;
+        my ($tagname, $attr, $line) = @_;
         if($tagname eq 'a' && defined $attr->{'href'}) {
-          push @links, $attr->{'href'};
+          push @links, {'link'=>$attr->{'href'}, 'line'=>$line};
         }
         if($tagname eq 'img' && defined $attr->{'src'}) {
-          push @links, $attr->{'src'};
+          push @links, {'link'=>$attr->{'src'}, 'line'=>$line};
         }
         if($tagname eq 'link' && defined $attr->{'href'}) {
-          push @links, $attr->{'href'};
+          push @links, {'link'=>$attr->{'href'}, 'line'=>$line};
         }
         if($tagname eq 'script' && defined $attr->{'src'}) {
-          push @links, $attr->{'src'};
+          push @links, {'link'=>$attr->{'src'}, 'line'=>$line};
         }
-      }, "tagname, attr"]),;
+      }, "tagname, attr, line"]),;
   $parser->parse_file("$basedir/$file");
 
   foreach my $link (@links) {
-    print "link: $link\n" if($opt_verbose);
-    next if $link =~ /^(http|https|mailto):/ || index($link, '//') == 0 ;
+    print "link: $link->{'link'}\n" if($opt_verbose);
+    next if $link->{'link'} =~ /^(http|https|mailto):/ || index($link->{'link'}, '//') == 0 ;
     my $target;
-    if($link =~ /^#/) {
-      $target = $file . $link;
+    if($link->{'link'} =~ /^#/) {
+      $target = $file . $link->{'link'};
     }
     else {
-      $target = get_directory($file) . $link;
+      $target = get_directory($file) . $link->{'link'};
       $target .= $target =~ /\/$/ ? 'index.html' : '';
       $target = normalize_path($target);
     }
     next if grep {$_ eq $target} @$files_ref;
     next if grep {$_ eq $target} @$ids_ref;
-    next if $link =~ /\/$/ && -f "$basedir/$file/${link}index.html";
-    print (($basedir ne '.' ? $basedir : '') . "$file: $link not found\n");
+    next if $link->{'link'} =~ /\/$/ && -f "$basedir/$file/$link->{'link'}index.html";
+    printf("%s:%d: %s not found.\n", ($basedir ne '.' ? $basedir : '') . $file, $link->{'line'}, $link->{'link'});
   }
 }
 
