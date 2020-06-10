@@ -4,12 +4,15 @@ use strict;
 use warnings;
 
 use HTML::Parser;
+use Getopt::Long;
 use Data::Dumper;
 
+my $opt_verbose;
 {
-  if(@ARGV < 1) {
-    usage();
-  }
+  usage() if(!GetOptions(
+    'verbose|v' => \$opt_verbose
+  ));
+  usage() if(@ARGV < 1);
 
   my $basedir = $ARGV[0];
   my $files_ref = get_files($basedir, '');
@@ -26,6 +29,7 @@ use Data::Dumper;
 # @param $ids_ref id一覧のリファレンス
 sub linkcheck {
   my($file, $basedir, $files_ref, $ids_ref) = @_;
+  print "target: $file\n" if($opt_verbose);
   my @links = ();
   my $parser = HTML::Parser->new(
     api_version => 3,
@@ -48,6 +52,7 @@ sub linkcheck {
   $parser->parse_file("$basedir/$file");
 
   foreach my $link (@links) {
+    print "link: $link\n" if($opt_verbose);
     next if $link =~ /^(http|https|mailto):/ || index($link, '//') == 0 ;
     my $target;
     if($link =~ /^#/) {
@@ -61,7 +66,7 @@ sub linkcheck {
     next if grep {$_ eq $target} @$files_ref;
     next if grep {$_ eq $target} @$ids_ref;
     next if $link =~ /\/$/ && -f "$basedir/$file/${link}index.html";
-    print (($basedir ne '.' ? $basedir : '') . "$file: $link\n");
+    print (($basedir ne '.' ? $basedir : '') . "$file: $link not found\n");
   }
 }
 
@@ -138,6 +143,10 @@ sub get_directory {
 }
 
 sub usage {
-  print "usage : linkchecker base-directory\n";
+  print <<'MSG';
+Usage: linkchecker [OPTION]... base-directory
+
+  -V, --verbose  display verbose message.
+MSG
   exit;
 }
