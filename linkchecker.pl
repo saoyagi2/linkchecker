@@ -41,6 +41,12 @@ foreach my $file (@files) {
         if($tagname eq 'img' && defined $attr->{'src'}) {
           push @links, $attr->{'src'};
         }
+        if($tagname eq 'link' && defined $attr->{'href'}) {
+          push @links, $attr->{'href'};
+        }
+        if($tagname eq 'script' && defined $attr->{'src'}) {
+          push @links, $attr->{'src'};
+        }
       }, "tagname, attr"]),;
   $parser->parse_file("$basedir/$file");
 
