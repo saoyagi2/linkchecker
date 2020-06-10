@@ -48,7 +48,7 @@ sub linkcheck {
   $parser->parse_file("$basedir/$file");
 
   foreach my $link (@links) {
-    next if $link =~ /^(http|https|mailto):/;
+    next if $link =~ /^(http|https|mailto):/ || index($link, '//') == 0 ;
     my $target;
     if($link =~ /^#/) {
       $target = $file . $link;
