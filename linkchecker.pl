@@ -29,7 +29,6 @@ my $opt_verbose;
 # @param $ids_ref id一覧のリファレンス
 sub linkcheck {
   my($file, $basedir, $files_ref, $ids_ref) = @_;
-  print "target: $file\n" if($opt_verbose);
   my @links = ();
   my $parser = HTML::Parser->new(
     api_version => 3,
@@ -50,6 +49,8 @@ sub linkcheck {
         }
       }, "tagname, attr, line"]),;
   $parser->parse_file("$basedir/$file");
+  return if(@links == 0);
+  print "target: $file\n" if($opt_verbose);
 
   foreach my $link (@links) {
     print "link: $link->{'link'}\n" if($opt_verbose);
