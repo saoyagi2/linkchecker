@@ -8,7 +8,8 @@ use Getopt::Long;
 use Data::Dumper;
 
 my $opt_verbose;
-{
+
+if($0 eq __FILE__) {
   usage() if(!GetOptions(
     'verbose|v' => \$opt_verbose
   ));
@@ -151,3 +152,5 @@ Usage: linkchecker [OPTION]... base-directory
 MSG
   exit;
 }
+
+1;
