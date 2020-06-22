@@ -81,7 +81,7 @@ sub get_files {
   my @files = ();
 
   opendir my $dh, "$basedir/$dir" or die "Can't open directory $basedir/$dir";
-  while(my $file = readdir $dh) {
+  foreach my $file (sort readdir $dh) {
     next if $file =~ /^\./;
     if(-f "$basedir/$dir/$file") {
       push @files, ($dir ne '' ? "$dir/$file" : $file);
