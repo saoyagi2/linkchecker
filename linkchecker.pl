@@ -20,7 +20,9 @@ if($0 eq __FILE__) {
   my $ids_ref = get_ids($files_ref, $basedir);
   my $result_code = 0;
   foreach my $file (@$files_ref) {
-    $result_code |= linkcheck($file, $basedir, $files_ref, $ids_ref);
+    my $result_ref = linkcheck($file, $basedir, $files_ref, $ids_ref);
+    print $result_ref->{'message'};
+    $result_code |= $result_ref->{'code'};
   }
   exit $result_code;
 }
@@ -30,11 +32,15 @@ if($0 eq __FILE__) {
 # @param $basedir 基準ディレクトリ
 # @param $files_ref ファイル一覧のリファレンス
 # @param $ids_ref id一覧のリファレンス
-# @return 0:エラーなし、1:エラーあり
+# @return 'code' 0:エラーなし、1:エラーあり
+#         'message' 出力メッセージ
 sub linkcheck {
   my($file, $basedir, $files_ref, $ids_ref) = @_;
   my @links = ();
-  my $result_code = 0;
+  my %result = (
+    'code' => 0,
+    'message' => ''
+  );
   my $parser = HTML::Parser->new(
     api_version => 3,
     start_h     => [
@@ -54,11 +60,11 @@ sub linkcheck {
         }
       }, "tagname, attr, line"]),;
   $parser->parse_file("$basedir/$file");
-  return $result_code if(@links == 0);
-  print "target: $file\n" if($opt_verbose);
+  return \%result if(@links == 0);
+  $result{'message'} .= "target: $file\n" if($opt_verbose);
 
   foreach my $link (@links) {
-    print "link: $link->{'link'}\n" if($opt_verbose);
+    $result{'message'} .= "link: $link->{'link'}\n" if($opt_verbose);
     next if $link->{'link'} =~ /^(http|https|mailto):/ || index($link->{'link'}, '//') == 0 ;
     my $target;
     if($link->{'link'} =~ /^#/) {
@@ -72,10 +78,10 @@ sub linkcheck {
     next if grep {$_ eq $target} @$files_ref;
     next if grep {$_ eq $target} @$ids_ref;
     next if $link->{'link'} =~ /\/$/ && -f "$basedir/$file/$link->{'link'}index.html";
-    printf("%s:%d: %s not found.\n", ($basedir ne '.' ? $basedir : '') . $file, $link->{'line'}, $link->{'link'});
-    $result_code = 1;
+    $result{'message'} .= sprintf("%s:%d: %s not found.\n", ($basedir ne '.' ? $basedir : '') . $file, $link->{'line'}, $link->{'link'});
+    $result{'code'} = 1;
   }
-  return $result_code;
+  return \%result;
 }
 
 # ファイル一覧取得
