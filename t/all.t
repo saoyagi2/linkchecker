@@ -7,6 +7,23 @@ use Test::More('no_plan');
 
 require_ok('./linkchecker.pl');
 
+# get_files/get_ids
+{
+  my $files_ref = get_files('t/data1', '');
+  is_deeply($files_ref, [
+    'base.css',
+    'dir/subpage.html',
+    'img.jpg',
+    'index.html',
+    'page.html',
+    'script.js'
+  ]);
+  my $ids_ref = get_ids($files_ref, 't/data1');
+  is_deeply($ids_ref, [
+    'index.html#id1'
+  ]);
+}
+
 # normalize_path
 {
   my $path;
