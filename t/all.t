@@ -24,17 +24,54 @@ require_ok('./linkchecker.pl');
     'index.html#id1'
   ], 'get_ids(\'data1\')');
 
-  my $result_ref = linkcheck('index.html', 't/data1', $files_ref, $ids_ref);
+  my $result_ref = linkcheck('index.html', 't/data1/', $files_ref, $ids_ref);
   is($result_ref->{'code'}, 0, 'linkcheck exit code \'data1/index.html\'');
   is($result_ref->{'message'}, '', 'linkcheck message \'data1/index.html\'');
 
-  $result_ref = linkcheck('page.html', 't/data1', $files_ref, $ids_ref);
+  $result_ref = linkcheck('page.html', 't/data1/', $files_ref, $ids_ref);
   is($result_ref->{'code'}, 0, 'linkcheck exit code \'data1/page.html\'');
   is($result_ref->{'message'}, '', 'linkcheck message \'data1/page.html\'');
 
-  $result_ref = linkcheck('dir/subpage.html', 't/data1', $files_ref, $ids_ref);
+  $result_ref = linkcheck('dir/subpage.html', 't/data1/', $files_ref, $ids_ref);
   is($result_ref->{'code'}, 0, 'linkcheck exit code \'data1/dir/subpage.html\'');
   is($result_ref->{'message'}, '', 'linkcheck message \'data1/dir/subpage.html\'');
+}
+
+# linkcheck/get_files/get_ids 'data2'
+{
+  my $files_ref = get_files('t/data2', '');
+  is_deeply($files_ref, [
+    'base.css',
+    'dir/subpage.html',
+    'img.jpg',
+    'index.html',
+    'page.html',
+    'script.js'
+  ], 'get_files(\'data2/\')');
+
+  my $ids_ref = get_ids($files_ref, 't/data2');
+  is_deeply($ids_ref, [
+    'index.html#id1'
+  ], 'get_ids(\'data1\')');
+
+  my $result_ref = linkcheck('index.html', 't/data2/', $files_ref, $ids_ref);
+  is($result_ref->{'code'}, 1, 'linkcheck exit code \'data2/index.html\'');
+  is(
+    $result_ref->{'message'},
+    "t/data2/index.html:6: no.css not found.\n"
+    . "t/data2/index.html:11: #noid not found.\n"
+    . "t/data2/index.html:14: nopage.html#id1 not found.\n"
+    . "t/data2/index.html:17: noimg.jpg not found.\n"
+    . "t/data2/index.html:20: noscript.js not found.\n",
+    'linkcheck message \'data2/index.html\'');
+
+  $result_ref = linkcheck('page.html', 't/data2/', $files_ref, $ids_ref);
+  is($result_ref->{'code'}, 0, 'linkcheck exit code \'data2/page.html\'');
+  is($result_ref->{'message'}, '', 'linkcheck message \'data2/page.html\'');
+
+  $result_ref = linkcheck('dir/subpage.html', 't/data2/', $files_ref, $ids_ref);
+  is($result_ref->{'code'}, 0, 'linkcheck exit code \'data2/dir/subpage.html\'');
+  is($result_ref->{'message'}, '', 'linkcheck message \'data2/dir/subpage.html\'');
 }
 
 # normalize_path
