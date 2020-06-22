@@ -18,9 +18,11 @@ if($0 eq __FILE__) {
   my $basedir = $ARGV[0];
   my $files_ref = get_files($basedir, '');
   my $ids_ref = get_ids($files_ref, $basedir);
+  my $result_code = 0;
   foreach my $file (@$files_ref) {
-    linkcheck($file, $basedir, $files_ref, $ids_ref);
+    $result_code |= linkcheck($file, $basedir, $files_ref, $ids_ref);
   }
+  exit $result_code;
 }
 
 # リンクチェック
@@ -28,9 +30,11 @@ if($0 eq __FILE__) {
 # @param $basedir 基準ディレクトリ
 # @param $files_ref ファイル一覧のリファレンス
 # @param $ids_ref id一覧のリファレンス
+# @return 0:エラーなし、1:エラーあり
 sub linkcheck {
   my($file, $basedir, $files_ref, $ids_ref) = @_;
   my @links = ();
+  my $result_code = 0;
   my $parser = HTML::Parser->new(
     api_version => 3,
     start_h     => [
@@ -50,7 +54,7 @@ sub linkcheck {
         }
       }, "tagname, attr, line"]),;
   $parser->parse_file("$basedir/$file");
-  return if(@links == 0);
+  return $result_code if(@links == 0);
   print "target: $file\n" if($opt_verbose);
 
   foreach my $link (@links) {
@@ -69,7 +73,9 @@ sub linkcheck {
     next if grep {$_ eq $target} @$ids_ref;
     next if $link->{'link'} =~ /\/$/ && -f "$basedir/$file/$link->{'link'}index.html";
     printf("%s:%d: %s not found.\n", ($basedir ne '.' ? $basedir : '') . $file, $link->{'line'}, $link->{'link'});
+    $result_code = 1;
   }
+  return $result_code;
 }
 
 # ファイル一覧取得
