@@ -16,6 +16,7 @@ if($0 eq __FILE__) {
   usage() if(@ARGV < 1);
 
   my $basedir = $ARGV[0];
+  $basedir =~ s/\/$//;
   my $files_ref = get_files($basedir, '');
   my $ids_ref = get_ids($files_ref, $basedir);
   my $result_code = 0;
@@ -78,7 +79,7 @@ sub linkcheck {
     next if grep {$_ eq $target} @$files_ref;
     next if grep {$_ eq $target} @$ids_ref;
     next if $link->{'link'} =~ /\/$/ && -f "$basedir/$file/$link->{'link'}index.html";
-    $result{'message'} .= sprintf("%s:%d: %s not found.\n", ($basedir ne '.' ? $basedir : '') . $file, $link->{'line'}, $link->{'link'});
+    $result{'message'} .= sprintf("%s:%d: %s not found.\n", ($basedir ne '.' ? "${basedir}/" : '') . $file, $link->{'line'}, $link->{'link'});
     $result{'code'} = 1;
   }
   return \%result;

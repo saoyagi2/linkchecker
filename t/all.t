@@ -22,15 +22,15 @@ require_ok('./linkchecker.pl');
     'index.html#id1'
   ], 'get_ids(\'data1\')');
 
-  my $result_ref = linkcheck('index.html', 't/data1/', $files_ref, $ids_ref);
+  my $result_ref = linkcheck('index.html', 't/data1', $files_ref, $ids_ref);
   is($result_ref->{'code'}, 0, 'linkcheck exit code \'data1/index.html\'');
   is($result_ref->{'message'}, '', 'linkcheck message \'data1/index.html\'');
 
-  $result_ref = linkcheck('page.html', 't/data1/', $files_ref, $ids_ref);
+  $result_ref = linkcheck('page.html', 't/data1', $files_ref, $ids_ref);
   is($result_ref->{'code'}, 0, 'linkcheck exit code \'data1/page.html\'');
   is($result_ref->{'message'}, '', 'linkcheck message \'data1/page.html\'');
 
-  $result_ref = linkcheck('dir/subpage.html', 't/data1/', $files_ref, $ids_ref);
+  $result_ref = linkcheck('dir/subpage.html', 't/data1', $files_ref, $ids_ref);
   is($result_ref->{'code'}, 0, 'linkcheck exit code \'data1/dir/subpage.html\'');
   is($result_ref->{'message'}, '', 'linkcheck message \'data1/dir/subpage.html\'');
 }
@@ -52,7 +52,7 @@ require_ok('./linkchecker.pl');
     'index.html#id1'
   ], 'get_ids(\'data1\')');
 
-  my $result_ref = linkcheck('index.html', 't/data2/', $files_ref, $ids_ref);
+  my $result_ref = linkcheck('index.html', 't/data2', $files_ref, $ids_ref);
   is($result_ref->{'code'}, 1, 'linkcheck exit code \'data2/index.html\'');
   is(
     $result_ref->{'message'},
@@ -63,11 +63,11 @@ require_ok('./linkchecker.pl');
     . "t/data2/index.html:20: noscript.js not found.\n",
     'linkcheck message \'data2/index.html\'');
 
-  $result_ref = linkcheck('page.html', 't/data2/', $files_ref, $ids_ref);
+  $result_ref = linkcheck('page.html', 't/data2', $files_ref, $ids_ref);
   is($result_ref->{'code'}, 0, 'linkcheck exit code \'data2/page.html\'');
   is($result_ref->{'message'}, '', 'linkcheck message \'data2/page.html\'');
 
-  $result_ref = linkcheck('dir/subpage.html', 't/data2/', $files_ref, $ids_ref);
+  $result_ref = linkcheck('dir/subpage.html', 't/data2', $files_ref, $ids_ref);
   is($result_ref->{'code'}, 0, 'linkcheck exit code \'data2/dir/subpage.html\'');
   is($result_ref->{'message'}, '', 'linkcheck message \'data2/dir/subpage.html\'');
 }
