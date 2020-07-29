@@ -32,6 +32,17 @@ index.html:21: noscript.js not found.
 dir/subpage.html:6: ../nopage.html not found.
 ```
 
+## 動作環境
+
+Perl 5.8 系がインストールされた環境で動作します。
+
+モジュールとして
+
+* HTML::Parser
+* Getopt::Long
+
+を使用しています。
+
 ## オプション
 
 以下のオプションを指定可能です。
