@@ -5,7 +5,6 @@ use warnings;
 
 use HTML::Parser;
 use Getopt::Long;
-use Data::Dumper;
 
 my $opt_verbose;
 
