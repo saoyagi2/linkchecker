@@ -61,10 +61,9 @@ sub linkcheck {
       }, "tagname, attr, line"]),;
   $parser->parse_file("$basedir/$file");
   return \%result if(@links == 0);
-  $result{'message'} .= "target: $file\n" if($opt_verbose);
 
   foreach my $link (@links) {
-    $result{'message'} .= "link: $link->{'link'}\n" if($opt_verbose);
+    $result{'message'} .= sprintf("%s:%d: info: link to %s.\n", ($basedir ne '.' ? "${basedir}/" : '') . $file, $link->{'line'}, $link->{'link'}) if($opt_verbose);
     next if $link->{'link'} =~ /^(http|https|mailto):/ || index($link->{'link'}, '//') == 0 ;
     my $target;
     if($link->{'link'} =~ /^#/) {
@@ -78,7 +77,7 @@ sub linkcheck {
     next if grep {$_ eq $target} @$files_ref;
     next if grep {$_ eq $target} @$ids_ref;
     next if $link->{'link'} =~ /\/$/ && -f "$basedir/$file/$link->{'link'}index.html";
-    $result{'message'} .= sprintf("%s:%d: %s not found.\n", ($basedir ne '.' ? "${basedir}/" : '') . $file, $link->{'line'}, $link->{'link'});
+    $result{'message'} .= sprintf("%s:%d: error: %s not found.\n", ($basedir ne '.' ? "${basedir}/" : '') . $file, $link->{'line'}, $link->{'link'});
     $result{'code'} = 1;
   }
   return \%result;

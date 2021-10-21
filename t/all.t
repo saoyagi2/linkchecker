@@ -56,11 +56,11 @@ require_ok('./linkchecker.pl');
   is($result_ref->{'code'}, 1, 'linkcheck exit code \'data2/index.html\'');
   is(
     $result_ref->{'message'},
-    "t/data2/index.html:6: no.css not found.\n"
-    . "t/data2/index.html:11: #noid not found.\n"
-    . "t/data2/index.html:14: nopage.html#id1 not found.\n"
-    . "t/data2/index.html:17: noimg.jpg not found.\n"
-    . "t/data2/index.html:20: noscript.js not found.\n",
+    "t/data2/index.html:6: error: no.css not found.\n"
+    . "t/data2/index.html:11: error: #noid not found.\n"
+    . "t/data2/index.html:14: error: nopage.html#id1 not found.\n"
+    . "t/data2/index.html:17: error: noimg.jpg not found.\n"
+    . "t/data2/index.html:20: error: noscript.js not found.\n",
     'linkcheck message \'data2/index.html\'');
 
   $result_ref = linkcheck('page.html', 't/data2', $files_ref, $ids_ref);
