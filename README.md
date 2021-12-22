@@ -25,11 +25,11 @@ a 要素の href 属性では id 属性によるページ内位置指定にも�
 
 ```
 $ linkchecker.pl  .
-index.html:5: error: no.css not found.
-index.html:13: error: nopage.html not found.
-index.html:17: error: noimg.jpg not found.
-index.html:21: error: noscript.js not found.
-dir/subpage.html:6: error: ../nopage.html not found.
+index.html:5: error: no.css not found
+index.html:13: error: nopage.html not found
+index.html:17: error: noimg.jpg not found
+index.html:21: error: noscript.js not found
+dir/subpage.html:6: error: ../nopage.html not found
 ```
 
 ## 動作環境
@@ -58,23 +58,23 @@ Perl 5.8 系がインストールされた環境で動作します。
 
 ```
 $ linkchecker.pl --verbose .
-index.html:5: info: link to base.css.
-index.html:6: info: link to no.css.
-index.html:6: error: no.css not found.
-index.html:9: info: link to https://www.yahoo.co.jp/.
-index.html:10: info: link to #id1.
-index.html:11: info: link to #noid.
-index.html:11: error: #noid not found.
-index.html:12: info: link to index.html#id1.
-index.html:13: info: link to page.html.
-index.html:14: info: link to nopage.html#id1.
-index.html:14: error: nopage.html#id1 not found.
-index.html:15: info: link to dir/subpage.html.
-index.html:16: info: link to img.jpg.
-index.html:17: info: link to noimg.jpg.
-index.html:17: error: noimg.jpg not found.
-index.html:19: info: link to script.js.
-index.html:20: info: link to noscript.js.
-index.html:20: error: noscript.js not found.
-index.html:21: info: link to //noscript.js.
+index.html:5: info: link to base.css
+index.html:6: info: link to no.css
+index.html:6: error: no.css not found
+index.html:9: info: link to https://www.yahoo.co.jp/
+index.html:10: info: link to #id1
+index.html:11: info: link to #noid
+index.html:11: error: #noid not found
+index.html:12: info: link to index.html#id1
+index.html:13: info: link to page.html
+index.html:14: info: link to nopage.html#id1
+index.html:14: error: nopage.html#id1 not found
+index.html:15: info: link to dir/subpage.html
+index.html:16: info: link to img.jpg
+index.html:17: info: link to noimg.jpg
+index.html:17: error: noimg.jpg not found
+index.html:19: info: link to script.js
+index.html:20: info: link to noscript.js
+index.html:20: error: noscript.js not found
+index.html:21: info: link to //noscript.js
 ```
