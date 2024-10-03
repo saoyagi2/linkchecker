@@ -94,8 +94,8 @@ sub get_files {
   opendir my $dh, "$basedir/$dir" or die "Can't open directory $basedir/$dir";
   foreach my $file (sort readdir $dh) {
     next if $file =~ /^\./;
-    next if $file =~ /~$/;
-    next if $file =~ /~bak/;
+    next if $file =~ /~$/;		# sample.html~
+    next if $file =~ /bak$/;	# sample.bak
     if(-f "$basedir/$dir/$file") {
       push @files, ($dir ne '' ? "$dir/$file" : $file);
     }
