@@ -75,6 +75,7 @@ sub linkcheck {
     }
     next if grep {$_ eq $target} @$files_ref;
     next if grep {$_ eq $target} @$ids_ref;
+    next if $link->{'link'} =~ /#$/ || $link->{'link'} =~ /#top$/;
     $result{'message'} .= sprintf("%s:%d: error: %s not found\n", ($basedir ne '.' ? "${basedir}/" : '') . $file, $link->{'line'}, $link->{'link'});
     $result{'code'} = 1;
   }
